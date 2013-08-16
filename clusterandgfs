@@ -1,0 +1,101 @@
+#!/bin/bash
+#
+# Codigo que muestra si el servicio GFS esta funcionando
+
+touch	/tmp/Chapter.xml
+Chap=/tmp/Chapter.xml 
+
+echo "<?xml version='1.0' encoding='utf-8' ?>" > $Chap
+echo '<!DOCTYPE chapter PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" '>>$Chap
+echo '[<!ENTITY % BOOK_ENTITIES SYSTEM "prueba.ent"> %BOOK_ENTITIES;]>' >> $Chap
+
+
+
+
+
+
+
+
+
+
+
+
+
+#####obteniendo informacion del cluster y guardando en variables
+#sacar informacion de clusterEdwin Enriquez
+C=$(cat /etc/cluster/cluster.conf |grep -c nodeid)
+
+
+
+#Build the chapter id 
+echo '<chapter id="chap-prueba-Test_Chapter">' >> $Chap
+	echo -e '\t<title>Servicio Cluster</title>' >> $Chap
+	echo -e '\t<para>' >> $Chap
+	echo -e '\t\tServicios, configuraciones y pruebas de clusters' >> $Chap
+
+
+
+##Edwin Enriquez
+i=1
+while (( i <= C  ))
+do
+
+echo -e '\t<para> ' >> $Chap
+echo -e 'nombre del nodo con id=' $i >> $Chap 
+echo -e '\t</para>' >> $Chap
+echo -e $(cat /etc/cluster/cluster.conf |grep -A 99999  nodeid=\"$i\" | grep -m1 -B 99999 '</clusternode>'|grep 'clusternode name'|awk 'BEGIN{FS="\""};{print $2" "}' ) >> $Chap
+
+echo -e '\t<para> ' >> $Chap
+echo -e  "informacion por fence" >> $Chap
+echo -e '\t</para> ' >> $Chap
+FENCEACTUAL=$(cat /etc/cluster/cluster.conf |grep -A 99999  nodeid=\"$i\" | grep -m1 -B 99999 '</clusternode>'|grep -A 999 '<fence'|grep -B 999 '</fence')
+
+
+	echo -e '\t<para>' >> $Chap
+
+echo -e $(echo $FENCEACTUAL|  sed 's/<method name=/<para>nombre del metodo/g'| sed 's/<fence>//g'| sed 's/<\/fence>//g'| sed 's/<device name=/<para>nombre del dispositivo/g' | sed 's/<\/method>//g' | sed 's/\/>//g' | sed 's/\">/"/g' ) >>$Chap
+
+#sed 's// /g'|
+
+
+	echo -e '\t<para>' >> $Chap
+
+
+
+let i=i+1
+done  ##fin Edwin Enriquez 
+
+
+
+
+
+
+
+	echo -e '\t</para>' >> $Chap
+	echo -e '\t<section id="sect-prueba-Test_Chapter-Test_Section_1">' >> $Chap
+		echo -e '\t\t<title>Servicio GFS2</title>' >>$Chap	
+	###Daniel Tinajero
+	
+		FlagGFSDaemon=$(ps -e | grep -c gfs2) #bandera que se activa si el demonio gfs2 esta activo
+		NumMountGFS=$(mount -l -t gfs2 | grep -c gfs2) #Numero de GFS2 montados en el nodo actual
+		if [ "$FlagGFSDaemon" -ge "1" -a $NumMountGFS -ge 1 ];
+			then 
+			Lista=$(mount -l | grep ext4 | awk 'BEGING { } ; {print "\n\t\t\t\t<listitem>\n\t\t\t\t\t<para>Tipo " $5 " del dispositivo " $1"</para>\n\t\t\t\t</listitem>"}') 
+			Parrafo="El servicio de GFS2 esta activo y montado en \n\t\t\t<orderedlist>$Lista\n\t\t\t</orderedlist>"
+		else
+			Parrafo="El servicio de GFS2 no esta activo debido a que no se encontro ningun dispositivo del tipo gfs2 ni el demonio de gfs2"
+		fi
+		
+		echo -e "\t\t<para>">>$Chap
+		echo -e "\t\t\t$Parrafo" >>$Chap
+		echo -e "\t\t</para>" >>$Chap
+		
+		
+	echo -e '\t</section>' >> $Chap
+
+
+
+
+echo '</chapter>' >> $Chap
+		
+
