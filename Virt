@@ -41,10 +41,34 @@ echo '<chapter id="Cap_Virtualizacion">' >> $Chap
 						if [ $TOTmaq != 3 ];
 							then
 								echo -e "\t<para>Lista de Maquinas:</para>" >> $Chap
-					 			echo -e "\t<para>" >> $Chap
-								lista2=$(virsh list --all |grep -v "^$\|State\|---"|awk '{ print "\t<listitem>\t<para>" $2 "&#9; " $3 "</para>\t</listitem>" }')
-								echo -e "<orderedlist>"$lista2"</orderedlist>" >> $Chap
-								echo -e "\t</para>" >> $Chap
+					 			#echo -e "\t<para>" >> $Chap
+								#lista2=$(virsh list --all |grep -v "^$\|State\|Estado\|---"|awk '{ print "\t<listitem>\t<para>" $2 "&#9; " $3 "</para>\t</listitem>" }')
+								#echo -e "<orderedlist>"$lista2"</orderedlist>" >> $Chap
+								#echo -e "\t</para>" >> $Chap
+								listaaux=$(virsh list --all |grep -v "^$\|State\|Estado\|---"|awk '{print $2}')
+								arreglo=($listaaux)
+								for (( i=0; i<$TOTmaq-3 ; i++))
+									do
+										echo -e "<para> "---------" </para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /Name/ {print $1 " " $2}'` >> $Chap
+										echo -e "</para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /State/ {print $1 " " $2 " "$3}'` >> $Chap
+										echo -e "</para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /Used memory/ {printf "%s %s\t%s %s", $1,$2,$3,$4}'` >> $Chap
+										echo -e "</para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /OS Type/ {print $1 " " $2 " " $3}'` >> $Chap
+										echo -e "</para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /CPU\(s\)/ {print $1 " " $2}'` >> $Chap
+										echo -e "</para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /CPU time/ {print $1 " " $2 " " $3}'` >> $Chap
+										echo -e "</para>" >>$Chap
+									done
 							fi
 
 				echo -e '\t</section>' >> $Chap
@@ -57,10 +81,31 @@ echo '<chapter id="Cap_Virtualizacion">' >> $Chap
 						if [ $maqACT != 0 ];
 							then
 								echo -e "\t<para>Lista de Maquinas activas</para>" >> $Chap
-								echo -e "\t<para>" >> $Chap
-								lista=$(virsh list|grep "ejecutando\|running"|awk '{ print "\t<listitem>\t<para>" $2 "</para>\t</listitem>" }')
-								echo -e "<orderedlist>"$lista"</orderedlist>" >> $Chap
-								echo -e "\t</para>" >> $Chap
+								#echo -e "\t<para>" >> $Chap
+								#lista=$(virsh list|grep "ejecutando\|running"|awk '{ print "\t<listitem>\t<para>" $2 "</para>\t</listitem>" }')
+								#echo -e "<orderedlist>"$lista"</orderedlist>" >> $Chap
+								#echo -e "\t</para>" >> $Chap
+								listaaux=$(virsh list|grep "ejecutando\|running"|awk '{print $2}')
+								arreglo=($listaaux)
+								for (( i=0; i<$maqACT ; i++))
+									do
+										echo -e "<para> "---------" </para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /Name/ {print $1 " " $2}'` >> $Chap
+										echo -e "</para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /Used memory/ {printf "%s %s\t%s %s", $1,$2,$3,$4}'` >> $Chap
+										echo -e "</para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /OS Type/ {print $1 " " $2 " " $3}'` >> $Chap
+										echo -e "</para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /CPU\(s\)/ {print $1 " " $2}'` >> $Chap
+										echo -e "</para>" >>$Chap
+										echo -e "<para>" >> $Chap
+										echo -e `virsh dominfo ${arreglo[ $i ]}|awk ' /CPU time/ {print $1 " " $2 " " $3}'` >> $Chap
+										echo -e "</para>" >>$Chap
+									done
 							fi
 				echo -e '\t</section>' >> $Chap	
 		fi
